@@ -11,7 +11,7 @@ License: CC BY-NC 4.0
 
 Non-Commercial: You may not use this material for commercial purposes.
 
-Attribution: You must give appropriate credit to the original author.
+Attribution: You must give appropriate credit to the original author. Including in the Bot's Description.
 
 Notice: Do not remove the credits in main.py.
 
@@ -55,12 +55,7 @@ Create Categories: Separate categories for NA, EU, AS, and High Tier testing tic
 
 Environment Variables: Create a .env file in the root directory:
 
-code
-Env
-download
-content_copy
-expand_less
-DISCORD_BOT_TOKEN=your_token_here
+DISCORD_BOT_TOKEN= "your_token_here" must be inside the ""
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
@@ -72,11 +67,6 @@ Bot Config: Open config.py and fill in all the IDs you gathered in Step 1. Ensur
 
 You must create the database and the tables manually. Run the following SQL queries in your MySQL console or PHPMyAdmin:
 
-code
-SQL
-download
-content_copy
-expand_less
 CREATE DATABASE tier_testing;
 USE tier_testing;
 
