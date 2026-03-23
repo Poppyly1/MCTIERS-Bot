@@ -1,0 +1,14 @@
+# Secret configuration
+.env
+
+# Database/Storage (Don't upload user data)
+data/
+*.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
