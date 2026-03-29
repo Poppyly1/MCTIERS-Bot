@@ -33,7 +33,7 @@ class HelpView(discord.ui.View):
     @discord.ui.button(label="Member Guide", style=discord.ButtonStyle.green)
     async def member_guide(self, interaction: discord.Interaction, button: discord.ui.Button):
         description = (
-            "Welcome to Test Bot! Here's how to get started:\n\n"
+            "Welcome to Testing Bot! Here's how to get started:\n\n"
             f"1. **Verify:** Go to {interaction.client.get_channel(config.REQUEST_TEST_CHANNEL_ID).mention} and click `Verify Account` to link your Minecraft account.\n\n"
             "2. **Join Waitlist:** Click `Enter Waitlist` and select your region. You'll receive a role and be pinged when testers are available.\n\n"
             "3. **Join Queue:** When you get pinged, go to the appropriate region channel and use the button to join the active queue.\n\n"
@@ -483,9 +483,7 @@ class CommandsCog(commands.Cog):
 
     @app_commands.command(name="close", description="Close a ticket")
     @app_commands.describe(
-        ranking="Attained Rank",
-        score="The fight score (e.g., 5-2).",
-        description="A detailed description of the user's performance."
+        ranking="Attained Rank"
     )
     @app_commands.choices(ranking=[
         app_commands.Choice(name="HT1", value="HT1"),
@@ -501,7 +499,7 @@ class CommandsCog(commands.Cog):
         app_commands.Choice(name="Discontinued", value="discontinued"),
     ])
     @app_commands.guilds(config.GUILD_ID)
-    async def close(self, interaction: discord.Interaction, ranking: app_commands.Choice[str], score: str, description: str):
+    async def close(self, interaction: discord.Interaction, ranking: app_commands.Choice[str]):
         if not await check_permission(interaction, config.TESTER_ROLE_ID, config.SENIOR_TESTER_ROLE_ID): return
         await interaction.response.defer(ephemeral=True)
         
@@ -537,15 +535,8 @@ class CommandsCog(commands.Cog):
         await self._update_player_rank_data(interaction, tested_user_id, {"tier": ranking_value})
 
         tested_member = interaction.guild.get_member(tested_user_id)
-        if tested_member:
-            try:
-                ign = player_data.get('minecraft_username', 'Unknown')
-                new_nickname = f"{ign} | {ranking_value}"
-                if len(new_nickname) > 32: new_nickname = ign[:32]
-                await tested_member.edit(nick=new_nickname, reason=f"Test completed by {interaction.user.name}")
-            except: pass
 
-        cooldown_days = 30 if tested_member and tested_member.get_role(config.BOOSTER_ROLE_ID) else (30 if ranking_value in {"HT1", "LT1", "HT2", "LT2", "HT3"} else 30)
+        cooldown_days = 3 if tested_member and tested_member.get_role(config.BOOSTER_ROLE_ID) else (5 if ranking_value in {"HT1", "LT1", "HT2", "LT2", "HT3"} else 5)
         expires_at = datetime.now(timezone.utc) + timedelta(days=cooldown_days)
         await db_write("INSERT INTO cooldowns (discord_id, expires_at) VALUES (%s, %s) ON DUPLICATE KEY UPDATE expires_at = %s", (tested_user_id, expires_at, expires_at))
 
@@ -574,15 +565,6 @@ class CommandsCog(commands.Cog):
             for emoji in ["👑", "🥳", "😱", "😭", "😂", "💀"]:
                 try: await res_msg.add_reaction(emoji)
                 except: pass
-
-        report_channel = self.bot.get_channel(config.TESTER_REPORT_CHANNEL_ID)
-        if report_channel:
-            report_embed = result_embed.copy()
-            report_embed.set_author(name=f"{(tested_user_obj.global_name or tested_user_obj.name)}'s Test Report")
-            report_embed.add_field(name="Score", value=score, inline=False)
-            report_embed.description = f"```{description}```"
-            if res_msg: report_embed.add_field(name="Result Link", value=f"[Jump to Message]({res_msg.jump_url})", inline=False)
-            await report_channel.send(embed=report_embed)
 
         ticket_embed = result_embed.copy()
         ticket_embed.description = "Ticket Closing in 5 seconds. Results processed successfully!"
