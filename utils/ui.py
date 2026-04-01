@@ -274,17 +274,6 @@ class JoinQueueButton(Button):
         queue.append(interaction.user.id)
         await save_data_to_json("queue_data.json", queue_data)
         await ping_testers_for_queue(interaction.client, interaction.user, self.region)
-
-        base_region = get_base_region_key(self.region)
-        if base_region:
-            waitlist_role_id = config.REGION_DATA[base_region].get("waitlist_role_id")
-            if waitlist_role_id:
-                role = interaction.guild.get_role(waitlist_role_id)
-                if role and role in interaction.user.roles:
-                    try:
-                        await interaction.user.remove_roles(role, reason="Joined the active queue")
-                    except discord.Forbidden:
-                        pass
         
         await interaction.followup.send("You have successfully joined the queue.", ephemeral=True)
 
